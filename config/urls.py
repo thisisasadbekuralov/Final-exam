@@ -18,9 +18,9 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="DRF project template",
+        title="Final Exam API",
         default_version='v1',
-        description="Django REST Framework project template with Authorization (Simple JWT)",
+        description="Final Exam Project in DRF",
         terms_of_service="https://www.google.com/policies/terms/",
         contact=openapi.Contact(email="contact@snippets.local"),
         license=openapi.License(name="No License"),

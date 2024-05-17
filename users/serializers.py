@@ -15,11 +15,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserModel
-        fields = ('username', 'email', 'password')
+        fields = ('username', 'password')
 
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
-        fields = ('id', 'first_name', 'last_name', 'email', 'date_joined', 'last_login')
-        read_only_fields = ('date_joined', 'last_login')
+        fields = ('first_name', 'last_name', 'email', 'birth_date', 'phone_number')

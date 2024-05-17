@@ -18,7 +18,6 @@ class CustomUser(AbstractUser):
         verbose_name_plural = 'Users'
 
 
-
 class PasswordResets(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     reset_code = models.CharField(max_length=10)

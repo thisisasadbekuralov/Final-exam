@@ -40,6 +40,7 @@ THIRD_APPS = [
 
 MY_APPS = [
     'users',
+    'app_TIUT'
 ]
 
 INSTALLED_APPS = DJANGO_DEFAULT_APPS + THIRD_APPS + MY_APPS
