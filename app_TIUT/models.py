@@ -32,3 +32,15 @@ class Requirements(models.Model):
         verbose_name_plural = 'Requirements'
         db_table = 'Requirements'
 
+
+class UserInfo(models.Model):
+    user_name = models.CharField(max_length=100)
+    email = models.CharField(max_length=100)
+    message = models.TextField()
+
+    def __str__(self):
+        return self.user_name
+
+    class Meta:
+        verbose_name = 'User'
+        db_table = 'userinfo'
