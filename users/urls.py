@@ -5,7 +5,8 @@ from users.views import (
     RegisterAPIView,
     ProfileUpdateView,
     password_change_view,
-    password_reset_view
+    password_reset_view,
+    LogoutView
 )
 
 router = routers.DefaultRouter()
@@ -15,4 +16,5 @@ urlpatterns = [
     path('register/', RegisterAPIView.as_view(), name="register"),
     path('password-change/', password_change_view, name="password-change"),
     path('password-reset/', password_reset_view, name="password-reset"),
+    path('logout/', LogoutView.as_view(), name="logout"),
 ] + router.urls

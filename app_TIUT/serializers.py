@@ -1,6 +1,8 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 from rest_framework import serializers
+
+from users.models import CustomUser
 from .models import (FAQ,
                      Requirements,
                      Sphere,
@@ -85,7 +87,6 @@ class SphereSerializer(ModelSerializer):
         fields = '__all__'
 
 
-
 class SphereGetSerializer(ModelSerializer):
     sphere_name = SerializerMethodField(method_name='get_sphere_name', read_only=True)
 
@@ -137,6 +138,8 @@ class PublicationGetSerializer(ModelSerializer):
         return obj.pub_file_uz
 
 
+# serializers.py
+
 class PaperSerializer(ModelSerializer):
     class Meta:
         model = Paper
@@ -149,19 +152,20 @@ class PaperGetSerializer(ModelSerializer):
     paper_text = SerializerMethodField(method_name='get_paper_description', read_only=True)
     paper_file = SerializerMethodField(method_name='get_paper_file', read_only=True)
     paper_keywords = SerializerMethodField(method_name='get_paper_keywords', read_only=True)
+    paper_author = SerializerMethodField(method_name='get_paper_author', read_only=True)
 
     class Meta:
         model = Paper
-        fields = ('id', 'paper_title', 'paper_text', 'paper_keywords', 'paper_file')
+        fields = ('id', 'paper_title', 'paper_text', 'paper_keywords', 'paper_file', 'paper_author')
         read_only_fields = ['id']
 
-    def get_paper_title(self, obj):
+    def get_paper_name(self, obj):
         lang = self.context['request'].GET.get('lang', 'uz')
         if lang == 'en':
             return obj.paper_title_en
         return obj.paper_title_uz
 
-    def get_paper_text(self, obj):
+    def get_paper_description(self, obj):
         lang = self.context['request'].GET.get('lang', 'uz')
         if lang == 'en':
             return obj.paper_text_en
@@ -170,14 +174,20 @@ class PaperGetSerializer(ModelSerializer):
     def get_paper_file(self, obj):
         lang = self.context['request'].GET.get('lang', 'uz')
         if lang == 'en':
-            return obj.pub_file_en
-        return obj.pub_file_uz
+            return obj.paper_file_en
+        return obj.paper_file_uz
 
     def get_paper_keywords(self, obj):
         lang = self.context['request'].GET.get('lang', 'uz')
         if lang == 'en':
             return obj.paper_keywords_en
         return obj.paper_keywords_uz
+
+    def get_paper_author(self, obj):
+        lang = self.context['request'].GET.get('lang', 'uz')
+        if lang == 'en':
+            return obj.paper_author_en
+        return obj.paper_author_uz
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -191,6 +201,19 @@ class ReviewSerializer(serializers.ModelSerializer):
         return data
 
 
+# serializers.py
+
+class ReviewPageSerializer(ModelSerializer):
+    reviewer_name = serializers.CharField(source=CustomUser.username, read_only=True)
+
+    class Meta:
+        model = Review
+        fields = '__all__'
 
 
+class PaperDetailSerializer(ModelSerializer):
+    reviews = ReviewSerializer(many=True, read_only=True)  # nested reviews
 
+    class Meta:
+        model = Paper
+        fields = '__all__'

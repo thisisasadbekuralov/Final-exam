@@ -36,6 +36,7 @@ THIRD_APPS = [
     'drf_yasg',
     'rest_framework',
     'rest_framework_simplejwt',
+    'ckeditor',
 ]
 
 MY_APPS = [
@@ -156,7 +157,10 @@ SWAGGER_SETTINGS = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 5
+
 }
 
 SIMPLE_JWT = {
@@ -209,3 +213,13 @@ EMAIL_HOST_PASSWORD = getenv('EMAIL_HOST_PASSWORD')
 
 
 AUTH_USER_MODEL = 'users.CustomUser'
+
+# CKEDITOR_BASEPATH = '/static/ckeditor/ckeditor'
+# CKEDITOR_UPLOAD_PATH = 'ckeditor/uploads/'
+#
+# CKEDITOR_CONFIGS = {
+#     'default': {
+#         'toolbar': 'Full',
+#         'height': 300,
+#     },
+

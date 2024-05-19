@@ -6,10 +6,21 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view
 from django.core.mail import send_mail
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 from config.settings import EMAIL_HOST_USER
-from .models import FAQ, Requirements, UserInfo, Sphere, Publication, Paper, Review
+from .filters import PaperFilter, RequirementsFilter, PublicationFilter
+from .permissions import UserPermissions
+from .models import (FAQ,
+                     Requirements,
+                     UserInfo,
+                     Sphere,
+                     Publication,
+                     Paper,
+                     Review,
+                     )
 from .serializers import (
     FAQSerializer, FAQGetSerializer,
     RequirementsSerializer, RequirementsGetSerializer,
@@ -17,15 +28,13 @@ from .serializers import (
     SphereGetSerializer, SphereSerializer,
     PublicationGetSerializer, PublicationSerializer,
     PaperGetSerializer, PaperSerializer,
-    ReviewSerializer
-
-
+    ReviewSerializer, PaperDetailSerializer,
 )
 
 
 class FAQViewSet(ModelViewSet):
     queryset = FAQ.objects.all()
-    permission_classes = [AllowAny]
+    permission_classes = [UserPermissions]
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -35,7 +44,9 @@ class FAQViewSet(ModelViewSet):
 
 class RequirementsViewSet(ModelViewSet):
     queryset = Requirements.objects.all()
-    permission_classes = [AllowAny]
+    permission_classes = [UserPermissions]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = RequirementsFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -93,7 +104,9 @@ class SphereViewSet(ModelViewSet):
 
 class PublicationViewSet(ModelViewSet):
     queryset = Publication.objects.all()
-    permission_classes = [AllowAny]
+    permission_classes = [UserPermissions]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = PublicationFilter
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -103,7 +116,11 @@ class PublicationViewSet(ModelViewSet):
 
 class PaperViewSet(ModelViewSet):
     queryset = Paper.objects.all()
-    permission_classes = [AllowAny]
+    permission_classes = [UserPermissions]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = PaperFilter
+    search_fields = ['paper_title_uz', 'paper_author_uz', 'paper_keywords_uz']
+    ordering_fields = ['views_count', 'created_at']
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -117,10 +134,33 @@ class ReviewViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        # Ensure the user is a reviewer and the owner of the review
         if self.request.user.is_reviewer:
             serializer.save(reviewer=self.request.user)
         else:
             raise PermissionDenied('Only reviewers can add reviews.')
 
+
+@api_view(['GET'])
+def main_page_details(request):
+    latest_pub = Publication.objects.order_by('-created_at').first()
+    most_viewed_papers = Paper.objects.order_by('-views_count')[:4]
+
+    latest_pub_data = PublicationSerializer(latest_pub).data if latest_pub else None
+    most_viewed_papers_data = PaperSerializer(most_viewed_papers, many=True).data
+
+    return Response({
+        'latest_publication': latest_pub_data,
+        'most_viewed_papers': most_viewed_papers_data
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def paper_detail_with_reviews(request, paper_id):
+    try:
+        paper = Paper.objects.get(pk=paper_id)
+    except Paper.DoesNotExist:
+        return Response({'error': 'Paper not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = PaperDetailSerializer(paper)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
