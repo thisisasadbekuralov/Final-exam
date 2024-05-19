@@ -1,16 +1,25 @@
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view
 from django.core.mail import send_mail
+from rest_framework.permissions import IsAuthenticated
+
 
 from config.settings import EMAIL_HOST_USER
-from .models import FAQ, Requirements, UserInfo
+from .models import FAQ, Requirements, UserInfo, Sphere, Publication, Paper, Review
 from .serializers import (
     FAQSerializer, FAQGetSerializer,
     RequirementsSerializer, RequirementsGetSerializer,
-    UserInfoSerializer
+    UserInfoSerializer,
+    SphereGetSerializer, SphereSerializer,
+    PublicationGetSerializer, PublicationSerializer,
+    PaperGetSerializer, PaperSerializer,
+    ReviewSerializer
+
+
 )
 
 
@@ -70,5 +79,48 @@ def send_email(request):
         {'message': 'Method not allowed'},
         status=status.HTTP_405_METHOD_NOT_ALLOWED
     )
+
+
+class SphereViewSet(ModelViewSet):
+    queryset = Sphere.objects.all()
+    permission_classes = [AllowAny]
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return SphereGetSerializer
+        return SphereSerializer
+
+
+class PublicationViewSet(ModelViewSet):
+    queryset = Publication.objects.all()
+    permission_classes = [AllowAny]
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return PublicationGetSerializer
+        return PublicationSerializer
+
+
+class PaperViewSet(ModelViewSet):
+    queryset = Paper.objects.all()
+    permission_classes = [AllowAny]
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return PaperGetSerializer
+        return PaperSerializer
+
+
+class ReviewViewSet(ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Ensure the user is a reviewer and the owner of the review
+        if self.request.user.is_reviewer:
+            serializer.save(reviewer=self.request.user)
+        else:
+            raise PermissionDenied('Only reviewers can add reviews.')
 
 

@@ -4,13 +4,19 @@ from django.contrib.auth.models import AbstractUser
 
 
 class CustomUser(AbstractUser):
-    username = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=20)
+    last_name = models.CharField(max_length=20)
     birth_date = models.DateField(null=True, blank=True)
-    phone_number = models.CharField(max_length=20, null=True, blank=True)
-    image = models.ImageField(upload_to='profile_pics', null=True, blank=True)
+    email = models.EmailField(unique=True)
+    organization = models.CharField(max_length=255)
+    password = models.CharField(max_length=255)
+    scientific_degree = models.CharField(max_length=255)
+    information = models.CharField(max_length=255, null=True, blank=True)
+    image = models.ImageField(upload_to='images', null=True, blank=True)
+    is_reviewer = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.username
+        return f'{self.first_name} {self.last_name}'
 
     class Meta:
         db_table = 'users'

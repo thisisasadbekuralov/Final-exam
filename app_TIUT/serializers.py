@@ -1,7 +1,13 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 from rest_framework import serializers
-from .models import FAQ, Requirements
+from .models import (FAQ,
+                     Requirements,
+                     Sphere,
+                     Publication,
+                     Paper,
+                     Review,
+                     )
 
 
 class FAQSerializer(ModelSerializer):
@@ -71,3 +77,120 @@ class UserInfoSerializer(serializers.Serializer):
     email = serializers.EmailField()
     message = serializers.CharField(max_length=500)
     subject = serializers.CharField(max_length=100)
+
+
+class SphereSerializer(ModelSerializer):
+    class Meta:
+        model = Sphere
+        fields = '__all__'
+
+
+
+class SphereGetSerializer(ModelSerializer):
+    sphere_name = SerializerMethodField(method_name='get_sphere_name', read_only=True)
+
+    class Meta:
+        model = Sphere
+        fields = ('id', 'sphere_name')
+        read_only_fields = ['id']
+
+    def get_sphere_name(self, obj):
+        lang = self.context['request'].GET.get('lang', 'uz')
+        if lang == 'en':
+            return obj.name_en
+        return obj.name_uz
+
+
+class PublicationSerializer(ModelSerializer):
+    class Meta:
+        model = Publication
+        fields = '__all__'
+        read_only_fields = ['id', 'views_count']
+
+
+class PublicationGetSerializer(ModelSerializer):
+    publication_name = SerializerMethodField(method_name='get_publication_name', read_only=True)
+    publication_description = SerializerMethodField(method_name='get_publication_description', read_only=True)
+    publication_file = SerializerMethodField(method_name='get_publication_file', read_only=True)
+
+    class Meta:
+        model = Publication
+        fields = ('id', 'publication_name', 'publication_description', 'publication_file')
+        read_only_fields = ['id']
+
+    def get_publication_name(self, obj):
+        lang = self.context['request'].GET.get('lang', 'uz')
+        if lang == 'en':
+            return obj.pub_name_en
+        return obj.pub_name_uz
+
+    def get_publication_description(self, obj):
+        lang = self.context['request'].GET.get('lang', 'uz')
+        if lang == 'en':
+            return obj.pub_description_en
+        return obj.pub_description_uz
+
+    def get_publication_file(self, obj):
+        lang = self.context['request'].GET.get('lang', 'uz')
+        if lang == 'en':
+            return obj.pub_file_en
+        return obj.pub_file_uz
+
+
+class PaperSerializer(ModelSerializer):
+    class Meta:
+        model = Paper
+        fields = '__all__'
+        read_only_fields = ['id', "views_count"]
+
+
+class PaperGetSerializer(ModelSerializer):
+    paper_title = SerializerMethodField(method_name='get_paper_name', read_only=True)
+    paper_text = SerializerMethodField(method_name='get_paper_description', read_only=True)
+    paper_file = SerializerMethodField(method_name='get_paper_file', read_only=True)
+    paper_keywords = SerializerMethodField(method_name='get_paper_keywords', read_only=True)
+
+    class Meta:
+        model = Paper
+        fields = ('id', 'paper_title', 'paper_text', 'paper_keywords', 'paper_file')
+        read_only_fields = ['id']
+
+    def get_paper_title(self, obj):
+        lang = self.context['request'].GET.get('lang', 'uz')
+        if lang == 'en':
+            return obj.paper_title_en
+        return obj.paper_title_uz
+
+    def get_paper_text(self, obj):
+        lang = self.context['request'].GET.get('lang', 'uz')
+        if lang == 'en':
+            return obj.paper_text_en
+        return obj.paper_text_uz
+
+    def get_paper_file(self, obj):
+        lang = self.context['request'].GET.get('lang', 'uz')
+        if lang == 'en':
+            return obj.pub_file_en
+        return obj.pub_file_uz
+
+    def get_paper_keywords(self, obj):
+        lang = self.context['request'].GET.get('lang', 'uz')
+        if lang == 'en':
+            return obj.paper_keywords_en
+        return obj.paper_keywords_uz
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = '__all__'
+
+    def validate(self, data):
+        if not self.context['request'].user.is_reviewer:
+            raise serializers.ValidationError('Only reviewers can add reviews.')
+        return data
+
+
+
+
+
