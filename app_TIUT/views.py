@@ -45,8 +45,8 @@ class FAQViewSet(ModelViewSet):
 class RequirementsViewSet(ModelViewSet):
     queryset = Requirements.objects.all()
     permission_classes = [UserPermissions]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = RequirementsFilter
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_class = RequirementsFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -105,8 +105,8 @@ class SphereViewSet(ModelViewSet):
 class PublicationViewSet(ModelViewSet):
     queryset = Publication.objects.all()
     permission_classes = [UserPermissions]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = PublicationFilter
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_class = PublicationFilter
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -117,10 +117,10 @@ class PublicationViewSet(ModelViewSet):
 class PaperViewSet(ModelViewSet):
     queryset = Paper.objects.all()
     permission_classes = [UserPermissions]
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_class = PaperFilter
-    search_fields = ['paper_title_uz', 'paper_author_uz', 'paper_keywords_uz']
-    ordering_fields = ['views_count', 'created_at']
+    # filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    # filterset_class = PaperFilter
+    # search_fields = ['paper_title_uz', 'paper_author_uz', 'paper_keywords_uz']
+    # ordering_fields = ['views_count', 'created_at']
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -131,7 +131,7 @@ class PaperViewSet(ModelViewSet):
 class ReviewViewSet(ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [UserPermissions]
 
     def perform_create(self, serializer):
         if self.request.user.is_reviewer:

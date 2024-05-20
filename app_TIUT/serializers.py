@@ -133,12 +133,11 @@ class PublicationGetSerializer(ModelSerializer):
 
     def get_publication_file(self, obj):
         lang = self.context['request'].GET.get('lang', 'uz')
-        if lang == 'en':
-            return obj.pub_file_en
-        return obj.pub_file_uz
+        file_field = obj.pub_file_en if lang == 'en' else obj.pub_file_uz
+        if file_field:
+            return file_field.url
+        return None
 
-
-# serializers.py
 
 class PaperSerializer(ModelSerializer):
     class Meta:
@@ -173,9 +172,8 @@ class PaperGetSerializer(ModelSerializer):
 
     def get_paper_file(self, obj):
         lang = self.context['request'].GET.get('lang', 'uz')
-        if lang == 'en':
-            return obj.paper_file_en
-        return obj.paper_file_uz
+        file = obj.paper_file_en if lang == 'en' else obj.paper_file_uz
+        return file.url if file else None
 
     def get_paper_keywords(self, obj):
         lang = self.context['request'].GET.get('lang', 'uz')
