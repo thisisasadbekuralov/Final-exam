@@ -1,7 +1,8 @@
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view
 from django.core.mail import send_mail
@@ -29,6 +30,7 @@ from .serializers import (
     PublicationGetSerializer, PublicationSerializer,
     PaperGetSerializer, PaperSerializer,
     ReviewSerializer, PaperDetailSerializer,
+    UserInformationSerializer,
 )
 
 
@@ -142,7 +144,7 @@ class ReviewViewSet(ModelViewSet):
 
 @api_view(['GET'])
 def main_page_details(request):
-    latest_pub = Publication.objects.order_by('-created_at').first()
+    latest_pub = Publication.objects.order_by('-created_at').last()
     most_viewed_papers = Paper.objects.order_by('-views_count')[:4]
 
     latest_pub_data = PublicationSerializer(latest_pub).data if latest_pub else None
@@ -163,4 +165,12 @@ def paper_detail_with_reviews(request, paper_id):
 
     serializer = PaperDetailSerializer(paper)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserInfoList(generics.ListAPIView):
+    queryset = UserInfo.objects.all()
+    serializer_class = UserInformationSerializer
+
+
+
 

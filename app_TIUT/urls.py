@@ -9,7 +9,8 @@ from .views import (FAQViewSet,
                     PaperViewSet,
                     ReviewViewSet,
                     main_page_details,
-                    paper_detail_with_reviews
+                    paper_detail_with_reviews,
+                    UserInfoList,
                     )
 
 
@@ -20,6 +21,8 @@ router.register('sphere', SphereViewSet)
 router.register('publications', PublicationViewSet) #need to add filters
 router.register('papers', PaperViewSet) #need to do filter
 router.register('reviews', ReviewViewSet) #need to add reviews
+# router.register('userinfo', UserInfoList)
+
 
 urlpatterns = router.urls
 
@@ -27,4 +30,5 @@ urlpatterns += [
     path('send-email/', send_email),
     path('main-page-details/', main_page_details),
     path('paper-detail-with-reviews/<int:paper_id>', paper_detail_with_reviews), #need to check mistakes
+    path('user-info-list/', UserInfoList.as_view()),
 ]

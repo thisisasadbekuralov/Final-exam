@@ -9,6 +9,8 @@ from .models import (FAQ,
                      Publication,
                      Paper,
                      Review,
+                     UserInfo,
+
                      )
 
 
@@ -214,4 +216,10 @@ class PaperDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Paper
+        fields = '__all__'
+
+
+class UserInformationSerializer(ModelSerializer):
+    class Meta:
+        model = UserInfo
         fields = '__all__'
