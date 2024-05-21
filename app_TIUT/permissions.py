@@ -15,3 +15,8 @@ class UserPermissions(BasePermission):
         elif request.method in ['PUT', 'PATCH', 'DELETE'] and request.user == obj.user:
             return True
         return False
+
+
+# class IsSuperUser(BasePermission):
+#     def has_permission(self, request, view):
+#

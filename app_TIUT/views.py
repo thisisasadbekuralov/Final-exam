@@ -119,10 +119,10 @@ class PublicationViewSet(ModelViewSet):
 class PaperViewSet(ModelViewSet):
     queryset = Paper.objects.all()
     permission_classes = [UserPermissions]
-    # filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    # filterset_class = PaperFilter
-    # search_fields = ['paper_title_uz', 'paper_author_uz', 'paper_keywords_uz']
-    # ordering_fields = ['views_count', 'created_at']
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = PaperFilter
+    search_fields = ['paper_title_uz', 'paper_author_uz', 'paper_keywords_uz']
+    ordering_fields = ['views_count', 'created_at']
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -157,14 +157,15 @@ def main_page_details(request):
 
 
 @api_view(['GET'])
-def paper_detail_with_reviews(request, paper_id):
-    try:
-        paper = Paper.objects.get(pk=paper_id)
-    except Paper.DoesNotExist:
-        return Response({'error': 'Paper not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    serializer = PaperDetailSerializer(paper)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+def paper_detail_with_reviews(request, id):
+    paper = PaperSerializer(Paper.objects.get(id=id)).data
+    reviews = ReviewSerializer(Review.objects.filter(paper=id), many=True).data
+    return Response(
+        {
+            'reviews': reviews,
+            'paper': paper
+        }
+    )
 
 
 class UserInfoList(generics.ListAPIView):
