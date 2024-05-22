@@ -2,7 +2,6 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.permissions import AllowAny
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view
 from django.core.mail import send_mail
@@ -47,8 +46,8 @@ class FAQViewSet(ModelViewSet):
 class RequirementsViewSet(ModelViewSet):
     queryset = Requirements.objects.all()
     permission_classes = [UserPermissions]
-    # filter_backends = [DjangoFilterBackend]
-    # filterset_class = RequirementsFilter
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = RequirementsFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -58,6 +57,10 @@ class RequirementsViewSet(ModelViewSet):
 
 @api_view(['POST'])
 def send_email(request):
+    '''
+    Aslida  ushbu funksiya administratorning emailiga email jonatishi kk edi lekin bizda admin emailli bolmaganligi sababli malimot osha user
+    kiritga emailga jonatiladi
+    '''
     if request.method == 'POST':
         serializer = UserInfoSerializer(data=request.data)
         if serializer.is_valid():
@@ -107,8 +110,8 @@ class SphereViewSet(ModelViewSet):
 class PublicationViewSet(ModelViewSet):
     queryset = Publication.objects.all()
     permission_classes = [UserPermissions]
-    # filter_backends = [DjangoFilterBackend]
-    # filterset_class = PublicationFilter
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = PublicationFilter
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -123,6 +126,10 @@ class PaperViewSet(ModelViewSet):
     filterset_class = PaperFilter
     search_fields = ['paper_title_uz', 'paper_author_uz', 'paper_keywords_uz']
     ordering_fields = ['views_count', 'created_at']
+
+    def retrieve(self, request, *args, **kwargs):
+        pass
+
 
     def get_serializer_class(self):
         if self.request.method == "GET":

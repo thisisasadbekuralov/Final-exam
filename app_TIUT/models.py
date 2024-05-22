@@ -69,29 +69,6 @@ class Sphere(models.Model):
         db_table = 'sphere'
 
 
-class Publication(AbstractBaseModel):
-    '''
-    Bitta Pulicationda kop fanlardan malumotlar bolganligi sababli
-    Sphere bilan Many to Many boglanish boladi
-    '''
-    pub_name_uz = models.CharField(max_length=100)
-    pub_name_en = models.CharField(max_length=100)
-    pub_description_uz = models.TextField()
-    pub_description_en = models.TextField()
-    pub_file_uz = models.FileField(upload_to='publications/', null=True, blank=True)
-    pub_file_en = models.FileField(upload_to='publications/', null=True, blank=True)
-    image = models.ImageField(upload_to='publications/')
-    views_count = models.IntegerField(default=0)
-    pub_sphere = models.ManyToManyField(Sphere, related_name='publications')
-
-    def __str__(self):
-        return self.pub_name_uz
-
-    class Meta:
-        verbose_name = 'Publication'
-        db_table = 'publication'
-
-
 class Paper(AbstractBaseModel):
     '''
     Bitta paper faqaat bitta fan boyicha boladi shuning uchun
@@ -117,6 +94,29 @@ class Paper(AbstractBaseModel):
     class Meta:
         verbose_name = 'Paper'
         db_table = 'paper'
+
+
+class Publication(AbstractBaseModel):
+    '''
+    Bitta Pulicationda kop fanlardan malumotlar bolganligi sababli
+    Sphere bilan Many to Many boglanish boladi
+    '''
+    pub_name_uz = models.CharField(max_length=100)
+    pub_name_en = models.CharField(max_length=100)
+    pub_description_uz = models.TextField()
+    pub_description_en = models.TextField()
+    pub_file_uz = models.FileField(upload_to='publications/', null=True, blank=True)
+    pub_file_en = models.FileField(upload_to='publications/', null=True, blank=True)
+    image = models.ImageField(upload_to='publications/')
+    views_count = models.IntegerField(default=0)
+    pub_sphere = models.ManyToManyField(Sphere, related_name='publications')
+
+    def __str__(self):
+        return self.pub_name_uz
+
+    class Meta:
+        verbose_name = 'Publication'
+        db_table = 'publication'
 
 
 class Review(AbstractBaseModel):
