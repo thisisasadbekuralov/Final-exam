@@ -5,14 +5,15 @@ from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view
 from django.core.mail import send_mail
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from datetime import timedelta
+from django.utils import timezone
 
 
 from config.settings import EMAIL_HOST_USER
 from .filters import PaperFilter, RequirementsFilter, PublicationFilter
-from .permissions import UserPermissions
+from .permissions import UserPermissions, IsSuperUser
 from .models import (FAQ,
                      Requirements,
                      UserInfo,
@@ -28,7 +29,7 @@ from .serializers import (
     SphereGetSerializer, SphereSerializer,
     PublicationGetSerializer, PublicationSerializer,
     PaperGetSerializer, PaperSerializer,
-    ReviewSerializer, PaperDetailSerializer,
+    ReviewSerializer,
     UserInformationSerializer,
 )
 
@@ -113,6 +114,19 @@ class PublicationViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_class = PublicationFilter
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        view_cookie = request.COOKIES.get(f'viewed_publication_{instance.id}')
+        if not view_cookie:
+            instance.views_count += 1
+            instance.save()
+            response = Response(self.get_serializer(instance).data)
+            expires = timezone.now() + timedelta(hours=1)
+            response.set_cookie(f'viewed_publication_{instance.id}', 'true', expires=expires)
+        else:
+            response = Response(self.get_serializer(instance).data)
+        return response
+
     def get_serializer_class(self):
         if self.request.method == "GET":
             return PublicationGetSerializer
@@ -128,8 +142,17 @@ class PaperViewSet(ModelViewSet):
     ordering_fields = ['views_count', 'created_at']
 
     def retrieve(self, request, *args, **kwargs):
-        pass
-
+        instance = self.get_object()
+        view_cookie = request.COOKIES.get(f'viewed_paper_{instance.id}')
+        if not view_cookie:
+            instance.views_count += 1
+            instance.save()
+            response = Response(self.get_serializer(instance).data)
+            expires = timezone.now() + timedelta(hours=1)
+            response.set_cookie(f'viewed_paper_{instance.id}', 'true', expires=expires)
+        else:
+            response = Response(self.get_serializer(instance).data)
+        return response
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -178,6 +201,7 @@ def paper_detail_with_reviews(request, id):
 class UserInfoList(generics.ListAPIView):
     queryset = UserInfo.objects.all()
     serializer_class = UserInformationSerializer
+    permission_classes = [IsSuperUser]
 
 
 
